@@ -237,6 +237,13 @@ class Subscribe(Capability):
                     break
             if not match:
                 self.protocol.log("warn", "No match found for topic, cancelling subscription to: " + topic)
+                
+                # Send error status response.
+                if aid is not None: 
+                    self.protocol.send( { "op" : "status", "id" : aid, "level" : "error", "msg" : "subscribe_nack_invalid_topic" } )
+                else:
+                    self.protocol.send( { "op" : "status", "level" : "error", "msg" : "subscribe_nack_invalid_topic" } )
+
                 return
         else:
             self.protocol.log("debug", "No topic security glob, not checking subscription.")
@@ -258,6 +265,12 @@ class Subscribe(Capability):
         self._subscriptions[topic].subscribe(**subscribe_args)
 
         self.protocol.log("info", "Subscribed to %s" % topic)
+
+        # Send ack status response.
+        if aid is not None: 
+            self.protocol.send( { "op" : "status", "id" : aid, "level" : "info", "msg" : "subscribe_ack" } )
+        else:
+            self.protocol.send( { "op" : "status", "level" : "info", "msg" : "subscribe_ack" } )
 
     def unsubscribe(self, msg):
         # Pull out the ID

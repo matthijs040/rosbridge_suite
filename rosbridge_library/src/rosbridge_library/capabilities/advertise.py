@@ -113,6 +113,12 @@ class Advertise(Capability):
                     break
             if not match:
                 self.protocol.log("warn", "No match found for topic, cancelling advertisement of: " + topic)
+
+                # Send error status response.
+                if aid is not None: 
+                    self.protocol.send( { "op" : "status", "id" : aid, "level" : "error", "msg" : "advertise_nack_invalid_topic" } )
+                else:
+                    self.protocol.send( { "op" : "status", "level" : "error", "msg" : "advertise_nack_invalid_topic" } )
                 return
         else:
             self.protocol.log("debug", "No topic security glob, not checking advertisement.")
@@ -124,6 +130,13 @@ class Advertise(Capability):
 
         # Register, propagating any exceptions
         self._registrations[topic].register_advertisement(msg_type, aid, latch, queue_size)
+
+        # Send ack status response.
+        if aid is not None:
+            self.protocol.send( { "op" : "status", "id" : aid, "level" : "info", "msg" : "advertise_ack" })
+        else:
+            self.protocol.send( { "op" : "status", "level" : "info", "msg" : "advertise_ack" })
+    
 
     def unadvertise(self, message):
         # Pull out the ID
@@ -142,6 +155,12 @@ class Advertise(Capability):
                     break
             if not match:
                 self.protocol.log("warn", "No match found for topic, cancelling unadvertisement of: " + topic)
+                
+                # Send error status response.
+                if aid is not None: 
+                    self.protocol.send( { "op" : "status", "id" : aid, "level" : "error", "msg" : "unadvertise_nack_invalid_topic" } )
+                else:
+                    self.protocol.send( { "op" : "status", "level" : "error", "msg" : "unadvertise_nack_invalid_topic" } )  
                 return
         else:
             self.protocol.log("debug", "No topic security glob, not checking unadvertisement.")
@@ -155,6 +174,12 @@ class Advertise(Capability):
         if self._registrations[topic].is_empty():
             self._registrations[topic].unregister()
             del self._registrations[topic]
+        
+        # Send ack status response.
+        if aid is not None:
+            self.protocol.send( { "op" : "status", "id" : aid, "level" : "info", "msg" : "unadvertise_ack" })
+        else:
+            self.protocol.send( { "op" : "status", "level" : "info", "msg" : "unadvertise_ack" })
 
     def finish(self):
         for registration in self._registrations.values():
