@@ -239,8 +239,8 @@ class Subscribe(Capability):
                 self.protocol.log("warn", "No match found for topic, cancelling subscription to: " + topic)
                 
                 # Send error status response.
-                if aid is not None: 
-                    self.protocol.send( { "op" : "status", "id" : aid, "level" : "error", "msg" : "subscribe_nack_invalid_topic" } )
+                if sid is not None: 
+                    self.protocol.send( { "op" : "status", "id" : sid, "level" : "error", "msg" : "subscribe_nack_invalid_topic" } )
                 else:
                     self.protocol.send( { "op" : "status", "level" : "error", "msg" : "subscribe_nack_invalid_topic" } )
 
@@ -267,8 +267,8 @@ class Subscribe(Capability):
         self.protocol.log("info", "Subscribed to %s" % topic)
 
         # Send ack status response.
-        if aid is not None: 
-            self.protocol.send( { "op" : "status", "id" : aid, "level" : "info", "msg" : "subscribe_ack" } )
+        if sid is not None: 
+            self.protocol.send( { "op" : "status", "id" : sid, "level" : "info", "msg" : "subscribe_ack" } )
         else:
             self.protocol.send( { "op" : "status", "level" : "info", "msg" : "subscribe_ack" } )
 
